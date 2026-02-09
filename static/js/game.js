@@ -77,7 +77,8 @@ async function startGame() {
     gameState.playerName = playerName;
     gameState.numbersCount = numbersCount;
     
-    // Switch to game screen first so we can measure header/footer
+    // Switch to game screen first to ensure DOM elements are rendered and measurable
+    // This allows getSafePlayArea() to accurately calculate header/footer dimensions
     switchScreen('game-screen');
     
     // Get canvas dimensions

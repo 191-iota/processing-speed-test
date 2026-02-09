@@ -66,12 +66,15 @@ def generate_circles(count: int, width: int, height: int, radius: int = 30, safe
         max_y = height - radius - 20
     
     # Ensure we have valid boundaries
-    if max_x <= min_x:
-        max_x = width - radius - 20
-        min_x = radius + 20
-    if max_y <= min_y:
-        max_y = height - radius - 20
-        min_y = radius + 20
+    if max_x <= min_x or max_y <= min_y:
+        # Invalid safe area boundaries - log warning and use conservative defaults
+        print(f"Warning: Invalid safe_area boundaries received. Using defaults. "
+              f"min_x={min_x}, max_x={max_x}, min_y={min_y}, max_y={max_y}")
+        # Use conservative boundaries to ensure circles stay in safe area
+        min_x = max(radius + 40, min_x) if min_x > 0 else radius + 40
+        max_x = min(width - radius - 40, max_x) if max_x > 0 else width - radius - 40
+        min_y = max(radius + 100, min_y) if min_y > 0 else radius + 100  # Extra space for header
+        max_y = min(height - radius - 120, max_y) if max_y > 0 else height - radius - 120  # Extra space for footer
     
     for i in range(1, count + 1):
         max_attempts = 100
