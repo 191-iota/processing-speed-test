@@ -13,7 +13,7 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 db = GameDatabase()
 
-// Store active games in memory (in production, use Redis or similar)
+# Store active games in memory (in production, use Redis or similar)
 # TODO: Add cleanup mechanism for stale game sessions (TTL-based)
 active_games = {}
 
