@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Sequence Speed Test</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen active">
+        <div class="container">
+            <h1 class="title">Number Sequence Speed Test</h1>
+            <p class="subtitle">Click the circles in numerical order as fast as you can!</p>
+            
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="player-name">Player Name:</label>
+                    <input type="text" id="player-name" value="Player" maxlength="20">
+                </div>
+                
+                <div class="form-group">
+                    <label for="circle-count">Number of Circles:</label>
+                    <select id="circle-count">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+                
+                <button id="start-btn" class="btn btn-primary">Start Game</button>
+            </div>
+            
+            <div class="leaderboard-container">
+                <h2>🏆 Top 10 Fastest Times</h2>
+                <div id="leaderboard-start" class="leaderboard">
+                    <div class="loading">Loading leaderboard...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <div class="info-bar">
+                <div class="player-info">
+                    <span class="label">Player:</span>
+                    <span id="player-display"></span>
+                </div>
+                <div class="timer-info">
+                    <span class="label">Time:</span>
+                    <span id="timer">0.00s</span>
+                </div>
+                <div class="hint-info">
+                    <span class="label">Next:</span>
+                    <span id="next-number">1</span>
+                </div>
+            </div>
+        </div>
+        
+        <canvas id="game-canvas"></canvas>
+        
+        <div class="game-footer">
+            <button id="quit-btn" class="btn btn-danger">Quit to Menu</button>
+        </div>
+    </div>
+    
+    <!-- Result Screen -->
+    <div id="result-screen" class="screen">
+        <div class="container">
+            <div id="result-message" class="result-message"></div>
+            
+            <div class="button-group">
+                <button id="play-again-btn" class="btn btn-primary">Play Again</button>
+                <button id="menu-btn" class="btn btn-secondary">Back to Menu</button>
+            </div>
+            
+            <div class="leaderboard-container">
+                <h2>🏆 Top 10 Leaderboard</h2>
+                <div id="leaderboard-result" class="leaderboard">
+                    <div class="loading">Loading leaderboard...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>

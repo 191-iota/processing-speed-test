@@ -1,0 +1,12 @@
+# Web application dependencies
+Flask==2.3.0
+Werkzeug==2.3.0
+
+# Python built-in libraries used:
+# - sqlite3 (Database)
+# - random (Circle placement)
+# - time (Timer)
+# - math (Circle overlap detection)
+# - secrets (Session management)
+
+# Python 3.7+ required
