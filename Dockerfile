@@ -1,15 +1,6 @@
 # Use Python 3.11 slim base image
 FROM python:3.11-slim
 
-# Install system-level dependencies needed for psycopg2-binary
-# libpq-dev: PostgreSQL client library headers and static library
-# gcc: C compiler needed to build psycopg2-binary on slim images
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        libpq-dev \
-        gcc \
-    && rm -rf /var/lib/apt/lists/*
-
 # Set working directory
 WORKDIR /app
 
@@ -17,8 +8,19 @@ WORKDIR /app
 # This means pip install only re-runs if requirements.txt changes
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install system dependencies and Python packages in one layer, then clean up
+# Build dependencies (can be removed after install): libpq-dev, gcc
+# Runtime dependencies (must remain): libpq5
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libpq-dev \
+        libpq5 \
+        gcc \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y --auto-remove \
+        libpq-dev \
+        gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy the rest of the application code
 COPY . .
