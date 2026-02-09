@@ -93,7 +93,7 @@ async function startGame() {
         
     } catch (error) {
         console.error('Error starting game:', error);
-        alert('Failed to start game. Please try again.');
+        alert('Failed to start game. Please check your connection and try again.\n\nError: ' + error.message);
     }
 }
 
@@ -188,6 +188,7 @@ async function handleCanvasClick(event) {
         
     } catch (error) {
         console.error('Error handling click:', error);
+        alert('An error occurred. Please refresh the page and try again.\n\nError: ' + error.message);
     }
 }
 

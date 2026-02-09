@@ -13,7 +13,8 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 db = GameDatabase()
 
-# Store active games in memory (in production, use Redis or similar)
+// Store active games in memory (in production, use Redis or similar)
+# TODO: Add cleanup mechanism for stale game sessions (TTL-based)
 active_games = {}
 
 
@@ -215,4 +216,6 @@ def handle_click():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    import os
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)
