@@ -1,10 +1,19 @@
 """
-SQLite database operations for the number sequence speed test game.
+Database operations for the number sequence speed test game.
+Supports PostgreSQL (production) with SQLite fallback (local development).
 """
 
+import os
 import sqlite3
 from datetime import datetime
 from typing import List, Tuple, Optional
+
+# Try to import psycopg2 for PostgreSQL support
+try:
+    import psycopg2
+    PSYCOPG2_AVAILABLE = True
+except ImportError:
+    PSYCOPG2_AVAILABLE = False
 
 
 class GameDatabase:
@@ -12,24 +21,68 @@ class GameDatabase:
     
     def __init__(self, db_name: str = "game_results.db"):
         """Initialize database connection and create tables if needed."""
-        self.db_name = db_name
+        # Check for PostgreSQL connection string
+        self.database_url = os.environ.get('DATABASE_URL')
+        
+        if self.database_url:
+            # Using PostgreSQL
+            if not PSYCOPG2_AVAILABLE:
+                raise ImportError(
+                    "DATABASE_URL is set but psycopg2 is not installed. "
+                    "Install it with: pip install psycopg2-binary"
+                )
+            
+            # Handle Heroku/Render postgres:// URLs (convert to postgresql://)
+            if self.database_url.startswith('postgres://'):
+                self.database_url = self.database_url.replace('postgres://', 'postgresql://', 1)
+            
+            self.use_postgres = True
+            self.db_name = None
+            print("Using PostgreSQL database")
+        else:
+            # Using SQLite for local development
+            self.use_postgres = False
+            self.db_name = db_name
+            print(f"Using SQLite database: {db_name}")
+        
         self.create_tables()
+    
+    def _get_connection(self):
+        """Get a database connection (PostgreSQL or SQLite)."""
+        if self.use_postgres:
+            return psycopg2.connect(self.database_url)
+        else:
+            return sqlite3.connect(self.db_name)
     
     def create_tables(self):
         """Create the results table if it doesn't exist."""
-        conn = sqlite3.connect(self.db_name)
+        conn = self._get_connection()
         cursor = conn.cursor()
         
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS results (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                player_name TEXT NOT NULL,
-                time_seconds REAL NOT NULL,
-                numbers_count INTEGER NOT NULL,
-                completed BOOLEAN NOT NULL,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
+        if self.use_postgres:
+            # PostgreSQL syntax
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS results (
+                    id SERIAL PRIMARY KEY,
+                    player_name TEXT NOT NULL,
+                    time_seconds REAL NOT NULL,
+                    numbers_count INTEGER NOT NULL,
+                    completed BOOLEAN NOT NULL,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+        else:
+            # SQLite syntax
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS results (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    player_name TEXT NOT NULL,
+                    time_seconds REAL NOT NULL,
+                    numbers_count INTEGER NOT NULL,
+                    completed BOOLEAN NOT NULL,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
         
         conn.commit()
         conn.close()
@@ -48,15 +101,25 @@ class GameDatabase:
         Returns:
             The ID of the inserted record
         """
-        conn = sqlite3.connect(self.db_name)
+        conn = self._get_connection()
         cursor = conn.cursor()
         
-        cursor.execute("""
-            INSERT INTO results (player_name, time_seconds, numbers_count, completed, timestamp)
-            VALUES (?, ?, ?, ?, ?)
-        """, (player_name, time_seconds, numbers_count, completed, datetime.now()))
+        if self.use_postgres:
+            # PostgreSQL uses %s for parameters
+            cursor.execute("""
+                INSERT INTO results (player_name, time_seconds, numbers_count, completed, timestamp)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING id
+            """, (player_name, time_seconds, numbers_count, completed, datetime.now()))
+            result_id = cursor.fetchone()[0]
+        else:
+            # SQLite uses ? for parameters
+            cursor.execute("""
+                INSERT INTO results (player_name, time_seconds, numbers_count, completed, timestamp)
+                VALUES (?, ?, ?, ?, ?)
+            """, (player_name, time_seconds, numbers_count, completed, datetime.now()))
+            result_id = cursor.lastrowid
         
-        result_id = cursor.lastrowid
         conn.commit()
         conn.close()
         
@@ -74,25 +137,45 @@ class GameDatabase:
         Returns:
             List of tuples (player_name, time_seconds, numbers_count, timestamp)
         """
-        conn = sqlite3.connect(self.db_name)
+        conn = self._get_connection()
         cursor = conn.cursor()
         
-        if numbers_count is not None:
-            cursor.execute("""
-                SELECT player_name, time_seconds, numbers_count, timestamp
-                FROM results
-                WHERE completed = 1 AND numbers_count = ?
-                ORDER BY time_seconds ASC
-                LIMIT ?
-            """, (numbers_count, limit))
+        if self.use_postgres:
+            # PostgreSQL uses %s for parameters
+            if numbers_count is not None:
+                cursor.execute("""
+                    SELECT player_name, time_seconds, numbers_count, timestamp
+                    FROM results
+                    WHERE completed = TRUE AND numbers_count = %s
+                    ORDER BY time_seconds ASC
+                    LIMIT %s
+                """, (numbers_count, limit))
+            else:
+                cursor.execute("""
+                    SELECT player_name, time_seconds, numbers_count, timestamp
+                    FROM results
+                    WHERE completed = TRUE
+                    ORDER BY time_seconds ASC
+                    LIMIT %s
+                """, (limit,))
         else:
-            cursor.execute("""
-                SELECT player_name, time_seconds, numbers_count, timestamp
-                FROM results
-                WHERE completed = 1
-                ORDER BY time_seconds ASC
-                LIMIT ?
-            """, (limit,))
+            # SQLite uses ? for parameters
+            if numbers_count is not None:
+                cursor.execute("""
+                    SELECT player_name, time_seconds, numbers_count, timestamp
+                    FROM results
+                    WHERE completed = 1 AND numbers_count = ?
+                    ORDER BY time_seconds ASC
+                    LIMIT ?
+                """, (numbers_count, limit))
+            else:
+                cursor.execute("""
+                    SELECT player_name, time_seconds, numbers_count, timestamp
+                    FROM results
+                    WHERE completed = 1
+                    ORDER BY time_seconds ASC
+                    LIMIT ?
+                """, (limit,))
         
         results = cursor.fetchall()
         conn.close()
@@ -110,29 +193,46 @@ class GameDatabase:
             Dictionary mapping circle counts to leaderboard entries
             {5: [(name, time, count, timestamp), ...], 10: [...], ...}
         """
-        conn = sqlite3.connect(self.db_name)
+        conn = self._get_connection()
         cursor = conn.cursor()
         
         # Get all unique circle counts that have completed games
-        cursor.execute("""
-            SELECT DISTINCT numbers_count
-            FROM results
-            WHERE completed = 1
-            ORDER BY numbers_count ASC
-        """)
+        if self.use_postgres:
+            cursor.execute("""
+                SELECT DISTINCT numbers_count
+                FROM results
+                WHERE completed = TRUE
+                ORDER BY numbers_count ASC
+            """)
+        else:
+            cursor.execute("""
+                SELECT DISTINCT numbers_count
+                FROM results
+                WHERE completed = 1
+                ORDER BY numbers_count ASC
+            """)
         
         circle_counts = [row[0] for row in cursor.fetchall()]
         
         # Get leaderboard for each circle count
         grouped_leaderboard = {}
         for count in circle_counts:
-            cursor.execute("""
-                SELECT player_name, time_seconds, numbers_count, timestamp
-                FROM results
-                WHERE completed = 1 AND numbers_count = ?
-                ORDER BY time_seconds ASC
-                LIMIT ?
-            """, (count, limit_per_group))
+            if self.use_postgres:
+                cursor.execute("""
+                    SELECT player_name, time_seconds, numbers_count, timestamp
+                    FROM results
+                    WHERE completed = TRUE AND numbers_count = %s
+                    ORDER BY time_seconds ASC
+                    LIMIT %s
+                """, (count, limit_per_group))
+            else:
+                cursor.execute("""
+                    SELECT player_name, time_seconds, numbers_count, timestamp
+                    FROM results
+                    WHERE completed = 1 AND numbers_count = ?
+                    ORDER BY time_seconds ASC
+                    LIMIT ?
+                """, (count, limit_per_group))
             
             grouped_leaderboard[count] = cursor.fetchall()
         
@@ -150,15 +250,23 @@ class GameDatabase:
         Returns:
             List of tuples (player_name, time_seconds, numbers_count, completed, timestamp)
         """
-        conn = sqlite3.connect(self.db_name)
+        conn = self._get_connection()
         cursor = conn.cursor()
         
-        cursor.execute("""
-            SELECT player_name, time_seconds, numbers_count, completed, timestamp
-            FROM results
-            ORDER BY timestamp DESC
-            LIMIT ?
-        """, (limit,))
+        if self.use_postgres:
+            cursor.execute("""
+                SELECT player_name, time_seconds, numbers_count, completed, timestamp
+                FROM results
+                ORDER BY timestamp DESC
+                LIMIT %s
+            """, (limit,))
+        else:
+            cursor.execute("""
+                SELECT player_name, time_seconds, numbers_count, completed, timestamp
+                FROM results
+                ORDER BY timestamp DESC
+                LIMIT ?
+            """, (limit,))
         
         results = cursor.fetchall()
         conn.close()

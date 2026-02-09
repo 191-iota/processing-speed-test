@@ -2,8 +2,11 @@
 Flask==2.3.0
 Werkzeug==2.3.0
 
+# Database dependencies
+psycopg2-binary==2.9.9
+
 # Python built-in libraries used:
-# - sqlite3 (Database)
+# - sqlite3 (Database fallback for local development)
 # - random (Circle placement)
 # - time (Timer)
 # - math (Circle overlap detection)
