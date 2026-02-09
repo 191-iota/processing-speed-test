@@ -27,8 +27,9 @@ html, body {
 .screen.active {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    overflow-y: auto;
     pointer-events: auto; /* Active screen captures mouse events */
 }
 
@@ -38,6 +39,7 @@ html, body {
     max-width: 900px;
     padding: 40px;
     text-align: center;
+    margin: auto;
 }
 
 /* Typography */
