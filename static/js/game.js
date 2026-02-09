@@ -107,9 +107,9 @@ function drawCircles() {
     
     // Draw each circle
     gameState.circles.forEach(circle => {
-        // Circle color based on state
-        const fillColor = circle.clicked ? '#2ecc71' : '#3498db';
-        const strokeColor = circle.clicked ? '#27ae60' : '#2980b9';
+        // Circle color based on state - minimal styling
+        const fillColor = circle.clicked ? '#3f3f46' : '#27272a'; // Dark gray tones
+        const strokeColor = circle.clicked ? '#eab308' : '#52525b'; // Mustard yellow when clicked, steel gray otherwise
         
         // Draw circle
         ctx.beginPath();
@@ -117,11 +117,11 @@ function drawCircles() {
         ctx.fillStyle = fillColor;
         ctx.fill();
         ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2; // Thinner border
         ctx.stroke();
         
         // Draw number
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = circle.clicked ? '#eab308' : '#fafaf9'; // Mustard yellow when clicked, off-white otherwise
         ctx.font = 'bold 24px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -215,13 +215,13 @@ function showResult(success, time, expectedNumber, clickedNumber) {
     if (success) {
         messageDiv.className = 'result-message success';
         messageDiv.innerHTML = `
-            <div style="font-size: 3rem; margin-bottom: 20px;">🎉 Congratulations!</div>
+            <div style="font-size: 3rem; margin-bottom: 20px;">Congratulations!</div>
             <div>You completed all ${gameState.numbersCount} numbers in ${time} seconds!</div>
         `;
     } else {
         messageDiv.className = 'result-message failure';
         messageDiv.innerHTML = `
-            <div style="font-size: 3rem; margin-bottom: 20px;">❌ Game Over!</div>
+            <div style="font-size: 3rem; margin-bottom: 20px;">Game Over</div>
             <div>You clicked the wrong number.</div>
             <div style="margin-top: 15px;">You needed: <strong>${expectedNumber}</strong></div>
             <div>You clicked: <strong>${clickedNumber}</strong></div>
@@ -249,11 +249,11 @@ async function loadLeaderboard(elementId) {
         let html = '';
         data.forEach((entry, index) => {
             const rank = index + 1;
-            const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+            // Remove medal emojis for minimal design
             
             html += `
                 <div class="leaderboard-entry">
-                    <div class="leaderboard-rank">${medal} #${rank}</div>
+                    <div class="leaderboard-rank">#${rank}</div>
                     <div class="leaderboard-name">${entry.name}</div>
                     <div class="leaderboard-time">${entry.time}s</div>
                     <div class="leaderboard-circles">${entry.circles} circles</div>
