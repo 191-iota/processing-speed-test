@@ -1,6 +1,6 @@
 # Number Sequence Speed Test
 
-A fun and challenging game to test your processing speed and hand-eye coordination! Click numbered circles in sequential order as fast as you can.
+A fun and challenging **web application** to test your processing speed and hand-eye coordination! Click numbered circles in sequential order as fast as you can.
 
 ## 🎮 Game Overview
 
@@ -8,7 +8,8 @@ Test your reaction time and accuracy by clicking numbered circles in ascending o
 
 ## ✨ Features
 
-- **Intuitive GUI**: Clean and user-friendly interface built with Tkinter
+- **Fullscreen Web Application**: Modern, responsive web interface
+- **Intuitive UI**: Clean and user-friendly design with smooth animations
 - **Customizable Difficulty**: Choose between 5, 10, 15, or 20 circles
 - **Random Placement**: Circles are randomly positioned each game (no overlaps)
 - **Real-time Timer**: Track your performance with millisecond precision
@@ -19,13 +20,14 @@ Test your reaction time and accuracy by clicking numbered circles in ascending o
   - Click wrong number → Game over
   - Click empty space → Nothing happens
 - **Visual Feedback**: Circles change color when clicked correctly
+- **Responsive Design**: Works on desktop and mobile devices
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Python 3.6 or higher (with tkinter support)
-- No external dependencies needed! (uses built-in libraries)
+- Python 3.7 or higher
+- Flask web framework
 
 ### Installation
 
@@ -35,15 +37,51 @@ git clone https://github.com/191-iota/processing-speed-test.git
 cd processing-speed-test
 ```
 
-2. Run the game:
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Run the web application:
 ```bash
 python main.py
 ```
 
-Or on some systems:
-```bash
-python3 main.py
+4. Open your browser and navigate to:
 ```
+http://localhost:5000
+```
+
+## 🌐 Deployment
+
+### Local Development
+```bash
+python main.py
+```
+
+### Production Deployment
+
+**Using Gunicorn (recommended for production):**
+```bash
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:5000 main:app
+```
+
+**Using Docker:**
+```dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "main:app"]
+```
+
+**Deploy to Cloud Platforms:**
+- **Heroku**: Push to Heroku with a `Procfile`
+- **AWS Elastic Beanstalk**: Deploy as Python application
+- **Google Cloud Run**: Deploy as containerized app
+- **DigitalOcean App Platform**: Deploy directly from Git
 
 ## 🎯 How to Play
 
@@ -74,12 +112,19 @@ python3 main.py
 
 ```
 processing-speed-test/
-├── README.md           # This file - game instructions
-├── main.py            # Main entry point
-├── game.py            # Game logic and Tkinter UI
-├── database.py        # SQLite database operations
-├── requirements.txt   # Dependencies (none required)
-└── game_results.db    # SQLite database (created on first run)
+├── main.py              # Flask application and API endpoints
+├── database.py          # SQLite database operations
+├── game.py              # Legacy Tkinter version (deprecated)
+├── templates/
+│   └── index.html      # Main HTML template
+├── static/
+│   ├── css/
+│   │   └── style.css   # Fullscreen webapp styling
+│   └── js/
+│       └── game.js     # Client-side game logic
+├── requirements.txt     # Python dependencies
+├── README.md           # This file
+└── game_results.db     # SQLite database (created on first run)
 ```
 
 ## 🗄️ Database Schema
@@ -106,33 +151,34 @@ CREATE TABLE results (
 
 ## 🎨 Technical Details
 
-- **GUI Framework**: Tkinter (Python's built-in GUI library)
-- **Database**: SQLite3 (Python's built-in database)
+- **Backend**: Flask (Python web framework)
+- **Frontend**: HTML5, CSS3, JavaScript (Canvas API)
+- **Database**: SQLite3 (serverless database)
+- **Design**: Fullscreen responsive layout with gradient backgrounds
 - **Circle Radius**: 30 pixels (60px diameter)
-- **Canvas Size**: 800x500 pixels
-- **Window Size**: 800x700 pixels (fixed)
+- **Canvas Size**: Dynamically resizes to fill browser window
 - **Timer Precision**: Updates every 50ms
 - **Overlap Prevention**: Circles maintain 10px minimum spacing
 
-## 🛠️ Development
+## 🛠️ API Endpoints
 
-The game is structured into three main modules:
+### GET `/`
+Returns the main HTML page
 
-1. **database.py**: Handles all SQLite operations
-   - Create/connect to database
-   - Save game results
-   - Retrieve leaderboard
-   - Query historical data
+### GET `/api/leaderboard`
+Get top 10 leaderboard entries
+- Optional query param: `numbers_count` (filter by circle count)
+- Returns: JSON array of leaderboard entries
 
-2. **game.py**: Main game logic and UI
-   - Circle class for game objects
-   - NumberSequenceGame class for game state
-   - Tkinter UI screens (start, game, result)
-   - Click detection and game logic
+### POST `/api/game/start`
+Start a new game session
+- Body: `{ player_name, numbers_count, canvas_width, canvas_height }`
+- Returns: `{ game_id, circles, current_number }`
 
-3. **main.py**: Entry point
-   - Initialize Tkinter
-   - Start the game
+### POST `/api/game/click`
+Handle a circle click
+- Body: `{ game_id, x, y }`
+- Returns: `{ result, ... }` (result: 'correct', 'wrong', 'complete', or 'empty')
 
 ## 📝 License
 
@@ -152,17 +198,20 @@ Contributions, issues, and feature requests are welcome!
 
 ## 🐛 Troubleshooting
 
-**Issue**: "tkinter not found" error
-- **Solution**: Install tkinter for your Python version:
-  - Ubuntu/Debian: `sudo apt-get install python3-tk`
-  - macOS: tkinter comes with Python from python.org
-  - Windows: tkinter is included with standard Python installation
+**Issue**: "Connection refused" error
+- **Solution**: Make sure Flask is running (`python main.py`)
+- Check that port 5000 is not in use by another application
 
-**Issue**: Window doesn't appear
-- **Solution**: Make sure you have a graphical environment (not SSH without X11)
+**Issue**: Database errors
+- **Solution**: Delete `game_results.db` and restart the application
 
-**Issue**: Circles overlap
-- **Solution**: This is rare but can happen with many circles. Try reducing the count or restarting the game.
+**Issue**: Circles not appearing
+- **Solution**: Check browser console for JavaScript errors
+- Ensure canvas is properly sized (refresh the page)
+
+**Issue**: Leaderboard not loading
+- **Solution**: Check network tab in browser developer tools
+- Verify Flask backend is running and accessible
 
 ---
 

@@ -10,6 +10,11 @@ venv/
 env/
 ENV/
 
+# Flask
+instance/
+.webassets-cache
+flask_session/
+
 # IDEs
 .vscode/
 .idea/
@@ -27,3 +32,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Legacy Tkinter version (deprecated)
+game.py
+UI_DOCUMENTATION.md
