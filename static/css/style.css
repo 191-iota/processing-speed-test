@@ -10,7 +10,7 @@ html, body {
     height: 100%;
     overflow: hidden;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #0a0a0a; /* Dark mode: Near-black solid background */
 }
 
 /* Screen Management */
@@ -21,6 +21,7 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
+    pointer-events: none; /* Fix cursor bug: hidden screens don't capture mouse events */
 }
 
 .screen.active {
@@ -28,6 +29,7 @@ html, body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    pointer-events: auto; /* Active screen captures mouse events */
 }
 
 /* Container */
@@ -42,27 +44,28 @@ html, body {
 .title {
     font-size: 3.5rem;
     font-weight: 700;
-    color: white;
+    color: #fafaf9; /* Off-white for high contrast */
     margin-bottom: 20px;
-    text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    animation: fadeInDown 0.6s ease-out;
+    text-shadow: none; /* Remove shadow for minimal design */
+    animation: none; /* Remove goofy animation */
 }
 
 .subtitle {
     font-size: 1.4rem;
-    color: rgba(255, 255, 255, 0.95);
+    color: #a1a1aa; /* Steel gray for subtitle */
     margin-bottom: 40px;
-    animation: fadeInUp 0.6s ease-out;
+    animation: none; /* Remove goofy animation */
 }
 
 /* Form Container */
 .form-container {
-    background: rgba(255, 255, 255, 0.95);
+    background: #18181b; /* Dark charcoal container */
     padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border-radius: 8px; /* Minimal rounded corners */
+    border: 1px solid #27272a; /* Subtle border */
+    box-shadow: none; /* Remove heavy shadow */
     margin-bottom: 40px;
-    animation: scaleIn 0.5s ease-out;
+    animation: none; /* Remove goofy animation */
 }
 
 .form-group {
@@ -74,7 +77,7 @@ html, body {
     display: block;
     font-size: 1.1rem;
     font-weight: 600;
-    color: #333;
+    color: #fafaf9; /* Off-white for dark mode */
     margin-bottom: 10px;
 }
 
@@ -83,17 +86,18 @@ html, body {
     width: 100%;
     padding: 15px;
     font-size: 1.1rem;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    background: white;
+    border: 1px solid #3f3f46; /* Minimal border */
+    border-radius: 4px; /* Less rounded */
+    transition: all 0.2s ease;
+    background: #27272a; /* Dark input background */
+    color: #fafaf9; /* Off-white text */
 }
 
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #eab308; /* Mustard yellow accent */
+    box-shadow: none; /* Remove shadow */
 }
 
 /* Buttons */
@@ -102,36 +106,37 @@ html, body {
     font-size: 1.3rem;
     font-weight: 700;
     border: none;
-    border-radius: 50px;
+    border-radius: 4px; /* Minimal rounded corners */
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    box-shadow: none; /* Remove shadow */
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+    transform: none; /* Remove lift animation */
+    opacity: 0.85; /* Subtle hover effect */
 }
 
 .btn:active {
-    transform: translateY(-1px);
+    transform: none; /* Remove press animation */
+    opacity: 0.7;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: #eab308; /* Mustard yellow accent */
+    color: #0a0a0a; /* Dark text for contrast */
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
+    background: #52525b; /* Steel gray */
+    color: #fafaf9; /* Off-white text */
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    color: white;
+    background: #dc2626; /* Minimal red */
+    color: #fafaf9; /* Off-white text */
 }
 
 .button-group {
@@ -143,15 +148,16 @@ html, body {
 
 /* Leaderboard */
 .leaderboard-container {
-    background: rgba(255, 255, 255, 0.95);
+    background: #18181b; /* Dark charcoal container */
     padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: fadeInUp 0.8s ease-out;
+    border-radius: 8px; /* Minimal rounded corners */
+    border: 1px solid #27272a; /* Subtle border */
+    box-shadow: none; /* Remove heavy shadow */
+    animation: none; /* Remove goofy animation */
 }
 
 .leaderboard-container h2 {
-    color: #333;
+    color: #fafaf9; /* Off-white for dark mode */
     margin-bottom: 25px;
     font-size: 2rem;
 }
@@ -162,31 +168,33 @@ html, body {
 }
 
 .leaderboard-entry {
-    background: white;
+    background: #27272a; /* Dark entry background */
     padding: 15px 20px;
     margin-bottom: 10px;
-    border-radius: 10px;
+    border-radius: 4px; /* Minimal rounded corners */
+    border: 1px solid #3f3f46; /* Subtle border */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    box-shadow: none; /* Remove shadow */
+    transition: all 0.2s ease;
 }
 
 .leaderboard-entry:hover {
-    transform: translateX(5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: none; /* Remove slide animation */
+    background: #3f3f46; /* Subtle hover effect */
 }
 
 .leaderboard-entry.highlight {
-    background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+    background: #3f3f46; /* Highlighted entry */
+    border-color: #eab308; /* Mustard yellow border */
     font-weight: 700;
 }
 
 .leaderboard-rank {
     font-size: 1.3rem;
     font-weight: 700;
-    color: #667eea;
+    color: #71717a; /* Steel gray */
     min-width: 50px;
 }
 
@@ -194,25 +202,25 @@ html, body {
     flex: 1;
     text-align: left;
     font-size: 1.1rem;
-    color: #333;
+    color: #fafaf9; /* Off-white */
 }
 
 .leaderboard-time {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #27ae60;
+    color: #eab308; /* Mustard yellow accent */
     min-width: 80px;
 }
 
 .leaderboard-circles {
     font-size: 1rem;
-    color: #666;
+    color: #a1a1aa; /* Steel gray */
     min-width: 90px;
 }
 
 .loading {
     padding: 30px;
-    color: #666;
+    color: #71717a; /* Steel gray for dark mode */
     font-style: italic;
 }
 
@@ -244,7 +252,7 @@ html, body {
 
 .info-bar .label {
     font-size: 1.2rem;
-    color: #bbb;
+    color: #71717a; /* Steel gray */
     font-weight: 600;
 }
 
@@ -254,15 +262,15 @@ html, body {
 }
 
 .player-info span:not(.label) {
-    color: white;
+    color: #fafaf9; /* Off-white */
 }
 
 .timer-info span:not(.label) {
-    color: #f39c12;
+    color: #eab308; /* Mustard yellow accent */
 }
 
 .hint-info span:not(.label) {
-    color: #2ecc71;
+    color: #eab308; /* Mustard yellow accent */
     font-size: 2rem;
 }
 
@@ -270,7 +278,7 @@ html, body {
 #game-canvas {
     flex: 1;
     cursor: crosshair;
-    background: rgba(255, 255, 255, 0.05);
+    background: #18181b; /* Dark canvas background */
 }
 
 .game-footer {
@@ -283,21 +291,24 @@ html, body {
 .result-message {
     font-size: 2.5rem;
     font-weight: 700;
-    color: white;
+    color: #fafaf9; /* Off-white */
     padding: 40px;
     margin-bottom: 20px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    animation: bounceIn 0.6s ease-out;
+    background: #18181b; /* Dark container */
+    border-radius: 8px; /* Minimal rounded corners */
+    border: 1px solid #27272a; /* Subtle border */
+    box-shadow: none; /* Remove shadow */
+    animation: none; /* Remove goofy animation */
 }
 
 .result-message.success {
-    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    background: #18181b; /* Keep dark, use border for accent */
+    border-color: #eab308; /* Mustard yellow border */
 }
 
 .result-message.failure {
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    background: #18181b; /* Keep dark, use border for accent */
+    border-color: #dc2626; /* Red border */
 }
 
 /* Animations */
@@ -386,15 +397,15 @@ html, body {
 }
 
 .leaderboard::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
+    background: #27272a; /* Dark track */
+    border-radius: 4px; /* Minimal rounded corners */
 }
 
 .leaderboard::-webkit-scrollbar-thumb {
-    background: #667eea;
-    border-radius: 10px;
+    background: #52525b; /* Steel gray */
+    border-radius: 4px; /* Minimal rounded corners */
 }
 
 .leaderboard::-webkit-scrollbar-thumb:hover {
-    background: #764ba2;
+    background: #71717a; /* Lighter steel gray */
 }
