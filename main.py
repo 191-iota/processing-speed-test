@@ -120,11 +120,10 @@ def get_leaderboard():
         
         result = {}
         for circle_count, entries in grouped_leaderboard.items():
-            result[str(circle_count)] = [
+            result[circle_count] = [
                 {
                     'name': name,
                     'time': round(time_sec, 2),
-                    'circles': num_circles,
                     'timestamp': timestamp
                 }
                 for name, time_sec, num_circles, timestamp in entries

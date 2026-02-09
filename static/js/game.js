@@ -279,7 +279,7 @@ async function loadLeaderboard(elementId) {
         
         let html = '';
         
-        // Sort circle counts (5, 10, 15, 20)
+        // Get circle counts and sort them numerically
         const circleCounts = Object.keys(data).map(Number).sort((a, b) => a - b);
         
         // Display each circle count group
