@@ -49,15 +49,39 @@ class Circle:
         }
 
 
-def generate_circles(count: int, width: int, height: int, radius: int = 30):
-    """Generate non-overlapping circles at random positions."""
+def generate_circles(count: int, width: int, height: int, radius: int = 30, safe_area: dict = None):
+    """Generate non-overlapping circles at random positions within safe area."""
     circles = []
+    
+    # Use safe area if provided, otherwise add basic padding
+    if safe_area:
+        min_x = safe_area.get('minX', radius + 20)
+        max_x = safe_area.get('maxX', width - radius - 20)
+        min_y = safe_area.get('minY', radius + 20)
+        max_y = safe_area.get('maxY', height - radius - 20)
+    else:
+        min_x = radius + 20
+        max_x = width - radius - 20
+        min_y = radius + 20
+        max_y = height - radius - 20
+    
+    # Ensure we have valid boundaries
+    if max_x <= min_x or max_y <= min_y:
+        # Invalid safe area boundaries - log warning and use conservative defaults
+        print(f"Warning: Invalid safe_area boundaries received. Using defaults. "
+              f"min_x={min_x}, max_x={max_x}, min_y={min_y}, max_y={max_y}")
+        # Use conservative boundaries to ensure circles stay in safe area
+        min_x = max(radius + 40, min_x) if min_x > 0 else radius + 40
+        max_x = min(width - radius - 40, max_x) if max_x > 0 else width - radius - 40
+        min_y = max(radius + 100, min_y) if min_y > 0 else radius + 100  # Extra space for header
+        max_y = min(height - radius - 120, max_y) if max_y > 0 else height - radius - 120  # Extra space for footer
+    
     for i in range(1, count + 1):
         max_attempts = 100
         for attempt in range(max_attempts):
-            # Add padding from edges
-            x = random.uniform(radius + 20, width - radius - 20)
-            y = random.uniform(radius + 20, height - radius - 20)
+            # Generate position within safe boundaries
+            x = random.uniform(min_x, max_x)
+            y = random.uniform(min_y, max_y)
             
             circle = Circle(x, y, i, radius)
             
@@ -113,8 +137,11 @@ def start_game():
     canvas_width = data.get('canvas_width', 1200)
     canvas_height = data.get('canvas_height', 700)
     
-    # Generate circles
-    circles = generate_circles(numbers_count, canvas_width, canvas_height)
+    # Get safe area boundaries from client
+    safe_area = data.get('safe_area', None)
+    
+    # Generate circles within safe area
+    circles = generate_circles(numbers_count, canvas_width, canvas_height, safe_area=safe_area)
     
     # Create game session
     game_id = secrets.token_hex(8)
