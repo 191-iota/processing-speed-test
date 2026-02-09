@@ -99,6 +99,47 @@ class GameDatabase:
         
         return results
     
+    def get_leaderboard_grouped_by_circles(self, limit_per_group: int = 10) -> dict:
+        """
+        Get leaderboards grouped by number of circles.
+        
+        Args:
+            limit_per_group: Maximum number of results per circle count
+            
+        Returns:
+            Dictionary mapping circle counts to leaderboard entries
+            {5: [(name, time, count, timestamp), ...], 10: [...], ...}
+        """
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        
+        # Get all unique circle counts that have completed games
+        cursor.execute("""
+            SELECT DISTINCT numbers_count
+            FROM results
+            WHERE completed = 1
+            ORDER BY numbers_count ASC
+        """)
+        
+        circle_counts = [row[0] for row in cursor.fetchall()]
+        
+        # Get leaderboard for each circle count
+        grouped_leaderboard = {}
+        for count in circle_counts:
+            cursor.execute("""
+                SELECT player_name, time_seconds, numbers_count, timestamp
+                FROM results
+                WHERE completed = 1 AND numbers_count = ?
+                ORDER BY time_seconds ASC
+                LIMIT ?
+            """, (count, limit_per_group))
+            
+            grouped_leaderboard[count] = cursor.fetchall()
+        
+        conn.close()
+        
+        return grouped_leaderboard
+    
     def get_all_results(self, limit: int = 20) -> List[Tuple]:
         """
         Get recent game results (completed and failed).

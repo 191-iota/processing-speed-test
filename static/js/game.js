@@ -267,27 +267,45 @@ async function loadLeaderboard(elementId) {
     const leaderboardDiv = document.getElementById(elementId);
     
     try {
-        const response = await fetch('/api/leaderboard');
+        // Fetch grouped leaderboard
+        const response = await fetch('/api/leaderboard?grouped=true');
         const data = await response.json();
         
-        if (data.length === 0) {
+        // Check if there are any leaderboards
+        if (Object.keys(data).length === 0) {
             leaderboardDiv.innerHTML = '<div class="loading">No records yet. Be the first!</div>';
             return;
         }
         
         let html = '';
-        data.forEach((entry, index) => {
-            const rank = index + 1;
-            // Remove medal emojis for minimal design
+        
+        // Sort circle counts (5, 10, 15, 20)
+        const circleCounts = Object.keys(data).map(Number).sort((a, b) => a - b);
+        
+        // Display each circle count group
+        circleCounts.forEach(circleCount => {
+            const entries = data[circleCount];
             
-            html += `
-                <div class="leaderboard-entry">
-                    <div class="leaderboard-rank">#${rank}</div>
-                    <div class="leaderboard-name">${entry.name}</div>
-                    <div class="leaderboard-time">${entry.time}s</div>
-                    <div class="leaderboard-circles">${entry.circles} circles</div>
-                </div>
-            `;
+            html += `<div class="leaderboard-group">`;
+            html += `<h3 class="leaderboard-group-title">${circleCount} Circles</h3>`;
+            
+            if (entries.length === 0) {
+                html += `<div class="leaderboard-empty">No records yet</div>`;
+            } else {
+                entries.forEach((entry, index) => {
+                    const rank = index + 1;
+                    
+                    html += `
+                        <div class="leaderboard-entry">
+                            <div class="leaderboard-rank">#${rank}</div>
+                            <div class="leaderboard-name">${entry.name}</div>
+                            <div class="leaderboard-time">${entry.time}s</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            html += `</div>`;
         });
         
         leaderboardDiv.innerHTML = html;
