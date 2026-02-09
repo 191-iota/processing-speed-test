@@ -36,13 +36,37 @@ function resizeCanvas() {
     const header = document.querySelector('.game-header');
     const footer = document.querySelector('.game-footer');
     
+    // Canvas fills the entire viewport
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - header.offsetHeight - footer.offsetHeight;
+    canvas.height = window.innerHeight;
     
     // Redraw circles if game is active
     if (gameState.gameId && gameState.circles.length > 0) {
         drawCircles();
     }
+}
+
+// Calculate safe play area boundaries
+function getSafePlayArea() {
+    const header = document.querySelector('.game-header');
+    const footer = document.querySelector('.game-footer');
+    
+    // Get actual heights
+    const headerHeight = header ? header.offsetHeight : 0;
+    // Footer is positioned absolutely in corner, so we need padding for it
+    const footerPadding = 80; // Height from bottom to avoid footer button
+    
+    // Add extra padding for safety
+    const topPadding = headerHeight + 40; // 40px extra padding below header
+    const bottomPadding = footerPadding + 40; // 40px extra padding above footer area
+    const sidePadding = 40; // 40px padding from sides
+    
+    return {
+        minX: sidePadding,
+        maxX: window.innerWidth - sidePadding,
+        minY: topPadding,
+        maxY: window.innerHeight - bottomPadding
+    };
 }
 
 // Start a new game
@@ -53,9 +77,15 @@ async function startGame() {
     gameState.playerName = playerName;
     gameState.numbersCount = numbersCount;
     
+    // Switch to game screen first so we can measure header/footer
+    switchScreen('game-screen');
+    
     // Get canvas dimensions
     const canvas = document.getElementById('game-canvas');
     resizeCanvas();
+    
+    // Calculate safe play area
+    const safeArea = getSafePlayArea();
     
     try {
         const response = await fetch('/api/game/start', {
@@ -67,7 +97,8 @@ async function startGame() {
                 player_name: playerName,
                 numbers_count: numbersCount,
                 canvas_width: canvas.width,
-                canvas_height: canvas.height
+                canvas_height: canvas.height,
+                safe_area: safeArea
             })
         });
         
@@ -77,9 +108,6 @@ async function startGame() {
         gameState.circles = data.circles;
         gameState.currentNumber = 1;
         gameState.startTime = Date.now();
-        
-        // Switch to game screen
-        switchScreen('game-screen');
         
         // Update UI
         document.getElementById('player-display').textContent = playerName;
