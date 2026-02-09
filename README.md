@@ -93,11 +93,40 @@ python main.py
 ## Deployment
 
 ### Local Development
+
+For local development, the app automatically uses SQLite (no configuration needed):
+
 ```bash
 python main.py
 ```
 
+The SQLite database file `game_results.db` will be created automatically in the project directory.
+
 ### Production Deployment
+
+For production deployments, you should use PostgreSQL to ensure data persists across redeployments.
+
+#### Step 1: Provision a PostgreSQL Database
+
+Most cloud platforms offer managed PostgreSQL databases:
+
+- **Render**: Create a PostgreSQL database in your Render dashboard
+- **Railway**: Add a PostgreSQL service to your project
+- **Heroku**: Add the Heroku Postgres add-on
+- **Supabase/Neon**: Create a free PostgreSQL database
+
+#### Step 2: Set the DATABASE_URL Environment Variable
+
+Configure the `DATABASE_URL` environment variable with your PostgreSQL connection string:
+
+```bash
+# Example format:
+DATABASE_URL=postgresql://username:password@host:port/database_name
+```
+
+**Note**: Some platforms (like Heroku/Render) provide URLs starting with `postgres://`. The app automatically converts these to `postgresql://` for compatibility.
+
+#### Step 3: Deploy Your Application
 
 Using Gunicorn (recommended):
 ```bash
@@ -105,20 +134,44 @@ pip install gunicorn
 gunicorn -w 4 -b 0.0.0.0:5000 main:app
 ```
 
-The application can be deployed to various cloud platforms including Heroku, AWS Elastic Beanstalk, Google Cloud Run, and DigitalOcean App Platform.
+The application will:
+- Automatically detect the `DATABASE_URL` environment variable
+- Connect to PostgreSQL for production
+- Create the necessary database tables on first run
+
+#### Supported Platforms
+
+The application can be deployed to various cloud platforms including:
+- Render (with Render PostgreSQL)
+- Railway (with Railway PostgreSQL)
+- Heroku (with Heroku Postgres)
+- Fly.io (with Fly Postgres)
+- AWS Elastic Beanstalk (with RDS)
+- Google Cloud Run (with Cloud SQL)
+- DigitalOcean App Platform (with Managed PostgreSQL)
 
 ## Database
 
-The application uses SQLite to store game results with the following schema:
+The application supports two database backends:
+
+### PostgreSQL (Production)
+Used when the `DATABASE_URL` environment variable is set. PostgreSQL ensures data persists across deployments.
+
+### SQLite (Local Development)
+Used automatically for local development when `DATABASE_URL` is not set. Data is stored in `game_results.db`.
+
+### Schema
+
+Both databases use the same schema:
 
 ```sql
 CREATE TABLE results (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,                    -- or INTEGER AUTOINCREMENT for SQLite
     player_name TEXT NOT NULL,
     time_seconds REAL NOT NULL,
     numbers_count INTEGER NOT NULL,
     completed BOOLEAN NOT NULL,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
