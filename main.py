@@ -110,20 +110,40 @@ def index():
 
 @app.route('/api/leaderboard', methods=['GET'])
 def get_leaderboard():
-    """Get the top 10 leaderboard."""
+    """Get the leaderboard, optionally grouped by circle count."""
     numbers_count = request.args.get('numbers_count', type=int)
-    leaderboard = db.get_leaderboard(numbers_count=numbers_count, limit=10)
+    grouped = request.args.get('grouped', default='false').lower() == 'true'
     
-    results = []
-    for name, time_sec, num_circles, timestamp in leaderboard:
-        results.append({
-            'name': name,
-            'time': round(time_sec, 2),
-            'circles': num_circles,
-            'timestamp': timestamp
-        })
-    
-    return jsonify(results)
+    if grouped:
+        # Return leaderboards grouped by circle count
+        grouped_leaderboard = db.get_leaderboard_grouped_by_circles(limit_per_group=10)
+        
+        result = {}
+        for circle_count, entries in grouped_leaderboard.items():
+            result[circle_count] = [
+                {
+                    'name': name,
+                    'time': round(time_sec, 2),
+                    'timestamp': timestamp
+                }
+                for name, time_sec, num_circles, timestamp in entries
+            ]
+        
+        return jsonify(result)
+    else:
+        # Return single leaderboard (backward compatible)
+        leaderboard = db.get_leaderboard(numbers_count=numbers_count, limit=10)
+        
+        results = []
+        for name, time_sec, num_circles, timestamp in leaderboard:
+            results.append({
+                'name': name,
+                'time': round(time_sec, 2),
+                'circles': num_circles,
+                'timestamp': timestamp
+            })
+        
+        return jsonify(results)
 
 
 @app.route('/api/game/start', methods=['POST'])

@@ -163,8 +163,36 @@ html, body {
 }
 
 .leaderboard {
-    max-height: 400px;
+    max-height: 500px;
     overflow-y: auto;
+}
+
+.leaderboard-group {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #27272a;
+}
+
+.leaderboard-group:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.leaderboard-group-title {
+    color: #eab308; /* Mustard yellow accent */
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.leaderboard-empty {
+    padding: 15px;
+    color: #71717a; /* Steel gray */
+    font-style: italic;
+    text-align: center;
 }
 
 .leaderboard-entry {
