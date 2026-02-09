@@ -226,7 +226,7 @@ html, body {
 
 /* Game Screen */
 #game-screen {
-    display: flex;
+    /* display: flex removed - handled by .screen.active */
     flex-direction: column;
 }
 
