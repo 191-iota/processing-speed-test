@@ -8,6 +8,13 @@ import sqlite3
 from datetime import datetime
 from typing import List, Tuple, Optional
 
+# Try to import psycopg2 for PostgreSQL support
+try:
+    import psycopg2
+    PSYCOPG2_AVAILABLE = True
+except ImportError:
+    PSYCOPG2_AVAILABLE = False
+
 
 class GameDatabase:
     """Handles all database operations for the game."""
@@ -19,19 +26,19 @@ class GameDatabase:
         
         if self.database_url:
             # Using PostgreSQL
+            if not PSYCOPG2_AVAILABLE:
+                raise ImportError(
+                    "DATABASE_URL is set but psycopg2 is not installed. "
+                    "Install it with: pip install psycopg2-binary"
+                )
+            
             # Handle Heroku/Render postgres:// URLs (convert to postgresql://)
             if self.database_url.startswith('postgres://'):
                 self.database_url = self.database_url.replace('postgres://', 'postgresql://', 1)
             
-            try:
-                import psycopg2
-                self.use_postgres = True
-                self.db_name = None
-                print("Using PostgreSQL database")
-            except ImportError:
-                print("Warning: psycopg2 not installed, falling back to SQLite")
-                self.use_postgres = False
-                self.db_name = db_name
+            self.use_postgres = True
+            self.db_name = None
+            print("Using PostgreSQL database")
         else:
             # Using SQLite for local development
             self.use_postgres = False
@@ -43,7 +50,6 @@ class GameDatabase:
     def _get_connection(self):
         """Get a database connection (PostgreSQL or SQLite)."""
         if self.use_postgres:
-            import psycopg2
             return psycopg2.connect(self.database_url)
         else:
             return sqlite3.connect(self.db_name)
