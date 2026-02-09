@@ -1,0 +1,9 @@
+# No external dependencies required
+# This game uses only Python built-in libraries:
+# - tkinter (GUI)
+# - sqlite3 (Database)
+# - random (Circle placement)
+# - time (Timer)
+# - math (Circle overlap detection)
+
+# Python 3.6+ required
