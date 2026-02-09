@@ -1,0 +1,59 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation and markdown files
+*.md
+README.md
+UI_DOCUMENTATION.md
+WEBAPP_SCREENSHOTS.md
+
+# Local SQLite database files
+*.db
+*.db-journal
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test files (if any)
+tests/
+test_*.py
+*_test.py
+
+# CI/CD configuration
+.github/
+
+# Flask cache
+.webassets-cache
+flask_session/
+instance/
